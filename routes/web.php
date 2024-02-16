@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\Admin\UserController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,10 +19,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth', 'isAdmin']], function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('/categories', CategoryController::class);
+    Route::resource('/tags', TagController::class);
+    Route::resource('/posts', PostController::class);
+    Route::resource('/users', UserController::class);
 });
 
-Route::group(['prefix' => 'admin', 'namespace' => 'Admin'], function() {
-    Route::get('/', [DashboardController::class, 'index']);
-});
+Auth::routes();
+
+require __DIR__.'/front.php';
